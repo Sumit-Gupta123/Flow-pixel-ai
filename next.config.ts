@@ -2,10 +2,9 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   // 1. Configure Server Components to ignore specific heavy AI libraries
-  // This prevents build errors when using transformers.js on the server.
   serverExternalPackages: ['@xenova/transformers', 'sharp', 'onnxruntime-node'],
 
-  // 2. Allow loading images from anywhere (useful for processing user URLs)
+  // 2. Allow loading images from anywhere
   images: {
     remotePatterns: [
       {
@@ -15,35 +14,32 @@ const nextConfig: NextConfig = {
     ],
   },
 
-  // 3. Turbopack specific configurations
-  experimental: {
-    turbo: {
-      // Turbopack usually reads paths from tsconfig.json automatically.
-      // If you have specific aliases that AREN'T in tsconfig, add them here:
-      resolveAlias: {
-        // 'underscore': 'lodash', // Example replacement
-      },
-      // If you need to map specific file extensions:
-      resolveExtensions: [
-        '.mdx',
-        '.tsx',
-        '.ts',
-        '.jsx',
-        '.js',
-        '.mjs',
-        '.json',
-      ],
+  // 3. Turbopack Configuration (MOVED TO ROOT)
+  // Note: Most alias resolution is handled automatically by tsconfig.json.
+  // You only need this block if you are manually mapping specific extensions or aliases
+  // that do not exist in your tsconfig.
+  turbo: {
+    resolveAlias: {
+      // 'underscore': 'lodash', 
     },
+    resolveExtensions: [
+      '.mdx',
+      '.tsx',
+      '.ts',
+      '.jsx',
+      '.js',
+      '.mjs',
+      '.json',
+    ],
   },
   
-  // 4. Webpack Fallback (Only used if you run 'next dev' WITHOUT --turbo)
-  // This ensures transformers.js works if you switch back to standard Webpack.
+  // 4. Webpack Fallback (Crucial for transformers.js compatibility in standard build)
   webpack: (config) => {
     config.resolve.fallback = {
       ...config.resolve.fallback,
-      fs: false,     // Required for transformers.js
-      path: false,   // Required for transformers.js
-      crypto: false, // Required for transformers.js
+      fs: false,     
+      path: false,   
+      crypto: false, 
     };
     return config;
   },
