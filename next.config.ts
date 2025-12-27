@@ -1,7 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  webpack: (config) => {
+  turbopack: (config) => {
     config.resolve.alias = {
       ...config.resolve.alias,
       "sharp$": false,
