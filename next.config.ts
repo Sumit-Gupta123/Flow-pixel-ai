@@ -1,7 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  // 1. Prevent build crashes by excluding heavy AI libs from the server bundle
+  // 1. Prevent build crashes by keeping heavy AI libraries out of the bundle
   serverExternalPackages: ['@xenova/transformers', 'sharp', 'onnxruntime-node'],
 
   // 2. Allow image processing from external URLs
@@ -14,28 +14,33 @@ const nextConfig: NextConfig = {
     ],
   },
 
-  // 3. Webpack Configuration (Crucial for Client-Side AI)
-  // This tells Next.js: "If the browser asks for 'fs' or 'path', pretend they don't exist."
-  turbopack: {}
+  // 3. Webpack Configuration
+  // All custom build logic MUST be inside this function
+  webpack: (config) => {
+    // Ignore Node.js modules on the client-side (fixes 'fs' not found errors)
+    config.resolve.alias = {
+      ...config.resolve.alias,
+      "sharp$": false,
+      "onnxruntime-node$": false,
+    };
     
-    // Fix for "WorkerError": unexpected token in ONNX
-    config.module.rules.push({
-      test: /\.node$/,
-      use: 'node-loader',
-    });
+    config.resolve.fallback = {
+      ...config.resolve.fallback,
+      fs: false,
+      path: false,
+      crypto: false,
+    };
 
     return config;
   },
   
-  // 4. Disable strict typescript checking during build to prevent timeout crashes
+  // 4. Build Safety: Ignore strict errors to ensure deployment succeeds
   typescript: {
     ignoreBuildErrors: true,
   },
-  
-  // 5. Disable eslint during build to save memory
   eslint: {
     ignoreDuringBuilds: true,
-  }
+  },
 };
 
 export default nextConfig;
