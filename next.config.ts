@@ -16,13 +16,7 @@ const nextConfig: NextConfig = {
 
   // 3. Webpack Configuration (Crucial for Client-Side AI)
   // This tells Next.js: "If the browser asks for 'fs' or 'path', pretend they don't exist."
-  webpack: (config) => {
-    config.resolve.fallback = {
-      ...config.resolve.fallback,
-      fs: false,
-      path: false,
-      crypto: false,
-    };
+  turbopack: {}
     
     // Fix for "WorkerError": unexpected token in ONNX
     config.module.rules.push({
